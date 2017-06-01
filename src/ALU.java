@@ -1,4 +1,5 @@
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
@@ -95,16 +96,23 @@ public class ALU {
         if(srcBint.length-1>eMax){
             return sig?floatRepresentation("+Inf",eLength,sLength):floatRepresentation("-Inf",eLength,sLength);
         }
+        boolean zf=true;
         //deal pure decimal
         if(srcBint.length==0){
-            srcBdec=decimal2Binary(new String(srcDec),eMax+3).toCharArray();
+            srcBdec=decimal2Binary(new String(srcDec),sLength+5).toCharArray();
             int cnt=0;
 			for (char aSrcBdec : srcBdec) {
 				if (aSrcBdec == '1') {
 					cnt++;
+					zf=false;
 					break;
 				}
 				cnt++;
+			}
+			//fix a bug
+			if(zf){
+				Arrays.fill(ret,1,ret.length,'0');
+				return new String(ret);
 			}
             if(cnt>=eMax){
 				//exp-underflow
@@ -284,11 +292,7 @@ public class ALU {
 				}
 				base*=0.5D;
 			}
-
 			ret=String.valueOf(result);
-			if(ret=="0"){
-				ret="0.0";
-			}
 		}
 		if(sig=='1'){
 			ret="-"+ret;
